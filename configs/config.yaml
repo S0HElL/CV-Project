@@ -1,0 +1,25 @@
+dataset:
+  kitti_stereo_path: "/Dataset/"
+  kitti_odometry_path: "/Dataset/"
+  
+stereo:
+  window_size: 11
+  max_disparity: 128
+  cost_function: "SAD"  # Options: SAD, SSD, NCC
+  consistency_threshold: 1
+  median_filter_size: 5
+  
+vo:
+  feature_detector: "ORB"  # Options: ORB, SIFT
+  descriptor_type: "ORB"
+  ransac_threshold: 1.0
+  ransac_iterations: 1000
+  ransac_confidence: 0.99
+  min_inliers: 50
+  
+output:
+  disparity_dir: "outputs/disparity"
+  depth_dir: "outputs/depth"
+  trajectory_dir: "outputs/trajectory"
+  evaluation_dir: "outputs/evaluation"
+  visualizations_dir: "outputs/visualizations"
