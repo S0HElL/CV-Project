@@ -1,6 +1,8 @@
 dataset:
-  kitti_stereo_path: "/Dataset/"
-  kitti_odometry_path: "/Dataset/"
+  kitti_odometry_path: "..\\CV Project\\Dataset"
+  use_odometry_for_stereo: true  # Use odometry dataset for both stereo and VO
+  stereo_sequences: [0, 1, 2, 3, 4, 5]  # Training split for stereo evaluation
+  vo_sequences: [6, 7, 8, 9, 10]  # Test split for VO evaluation
   
 stereo:
   window_size: 11
