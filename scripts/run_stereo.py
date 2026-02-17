@@ -15,7 +15,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 
 from src.utils.kitti_stereo_loader import load_stereo_pair, get_sequence_length
 from src.utils.kitti_odometry_loader import load_calibration
-from src.stereo.block_matching import compute_disparity_optimized
+#from src.stereo.block_matching import compute_disparity_optimized
+from src.stereo.sgbm import compute_disparity_sgbm
 from src.stereo.consistency import compute_lr_consistency
 from src.stereo.postprocessing import postprocess_disparity
 from src.stereo.depth import disparity_to_depth
@@ -83,29 +84,43 @@ def run_stereo_pipeline(dataset_path, sequence_id, frame_ids, config, output_dir
             
             # Compute disparity (left-to-right)
             print(f"  Computing disparity (L->R)...")
-            disparity_lr = compute_disparity_optimized(
+            disparity_lr = compute_disparity_sgbm(
                 left_img, right_img,
-                window_size=window_size,
-                max_disparity=max_disparity,
-                cost_function=cost_function
-            )
+                min_disparity=0,
+                num_disparities=64,
+                block_size=11
+              )
+            # disparity_lr = compute_disparity_optimized(
+            #     left_img, right_img,
+            #     window_size=window_size,
+            #     max_disparity=max_disparity,
+            #     cost_function=cost_function
+            # )
             
             # Compute disparity (right-to-left) for consistency check
-            print(f"  Computing disparity (R->L)...")
-            disparity_rl = compute_disparity_optimized(
-                right_img, left_img,
-                window_size=window_size,
-                max_disparity=max_disparity,
-                cost_function=cost_function
-            )
+            # print(f"  Computing disparity (R->L)...")
+            # disparity_rl = compute_disparity_optimized(
+            #     right_img, left_img,
+            #     window_size=window_size,
+            #     max_disparity=max_disparity,
+            #     cost_function=cost_function
+            # )
             
             # Consistency check
-            print(f"  Applying consistency check...")
-            consistent_disparity, valid_mask = compute_lr_consistency(
-                disparity_lr, disparity_rl,
-                threshold=config['stereo']['consistency_threshold']
-            )
+            # print(f"  Applying consistency check...")
+            # consistent_disparity, valid_mask = compute_lr_consistency(
+            #     disparity_lr, disparity_rl,
+            #     threshold=config['stereo']['consistency_threshold']
+            # )
             
+            consistent_disparity = disparity_lr
+            valid_mask = disparity_lr > 0
+
+            num_valid_before = np.sum(disparity_lr > 0)
+            num_valid_after = num_valid_before  # No pixels removed
+            print(f"    Valid pixels: {num_valid_before}")
+
+
             num_valid_before = np.sum(disparity_lr > 0)
             num_valid_after = np.sum(consistent_disparity > 0)
             print(f"    Valid pixels: {num_valid_before} -> {num_valid_after}")
@@ -118,7 +133,7 @@ def run_stereo_pipeline(dataset_path, sequence_id, frame_ids, config, output_dir
                 median_kernel=config['stereo']['median_filter_size'],
                 fill_method='horizontal',
                 remove_speckles=True,
-                min_region_size=50
+                min_region_size=20
             )
             
             num_valid_final = np.sum(processed_disparity > 0)
