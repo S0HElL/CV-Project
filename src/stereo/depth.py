@@ -1,6 +1,6 @@
 #depth = (f * B) / disparity
 import numpy as np
-def disparity_to_depth(disparity_map, focal_length, baseline):
+def disparity_to_depth(disparity_map, focal_length, baseline, min_disparity=1.0, max_depth=80.0):
     """
     Convert disparity map to depth map.
     
@@ -8,6 +8,8 @@ def disparity_to_depth(disparity_map, focal_length, baseline):
         disparity_map: Disparity map (pixels)
         focal_length: Camera focal length f (pixels)
         baseline: Stereo baseline B (meters)
+        min_disparity: Minimum valid disparity (default 1.0 pixels)
+        max_depth: Maximum valid depth (default 80 meters)
     
     Returns:
         depth_map: Depth map (meters)
@@ -15,10 +17,14 @@ def disparity_to_depth(disparity_map, focal_length, baseline):
     # Create output depth map
     depth_map = np.zeros_like(disparity_map, dtype=np.float32)
     
-    # Only compute depth where disparity is valid (> 0)
-    valid_mask = disparity_map > 0
-    #avoids division by zero and invalid depth values for zero disparity
+    # Only compute depth where disparity is valid and above threshold
+    valid_mask = disparity_map >= min_disparity
+    
+    # Compute depth
     depth_map[valid_mask] = (focal_length * baseline) / disparity_map[valid_mask]
+    
+    # Filter out unrealistic depths
+    depth_map[depth_map > max_depth] = 0
     
     return depth_map
 
