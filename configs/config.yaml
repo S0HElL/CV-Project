@@ -5,12 +5,11 @@ dataset:
   vo_sequences: [6, 7, 8, 9, 10]  # Test split for VO evaluation
   
 stereo:
-  window_size: 11
-  max_disparity: 128
-  cost_function: "SAD"  # Options: SAD, SSD, NCC
-  consistency_threshold: 1
-  median_filter_size: 5
-  
+  window_size: 15  
+  max_disparity: 48 
+  cost_function: "SSD" # Options: SSD, SAD, NCC
+  consistency_threshold: 2  
+  median_filter_size: 7
 vo:
   feature_detector: "ORB"  # Options: ORB, SIFT
   descriptor_type: "ORB"
