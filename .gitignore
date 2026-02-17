@@ -3,3 +3,4 @@
 /Dataset
 venv/*
 __pycache__/
+outputs/*
