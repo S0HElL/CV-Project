@@ -109,9 +109,13 @@ def plot_depth_with_image(image, depth, title="Depth Map", save_path=None, show=
     axes[0].axis('off')
     
     # Plot depth
-    valid_depth = depth[depth > 0]
-    vmin = valid_depth.min() if len(valid_depth) > 0 else None
-    vmax = np.percentile(valid_depth, 95) if len(valid_depth) > 0 else None
+    valid_depth = depth[(depth > 0) & (depth < 80)]  # Filter for visualization
+    if len(valid_depth) > 0:
+        vmin = 0
+        vmax = 50  # Fixed max at 50 meters for better visualization
+    else:
+        vmin = None
+        vmax = None
     
     im = axes[1].imshow(depth, cmap='plasma', vmin=vmin, vmax=vmax)
     axes[1].set_title(title)
