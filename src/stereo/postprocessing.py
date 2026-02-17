@@ -20,9 +20,18 @@ def median_filter(disparity_map, kernel_size=5):
     if kernel_size % 2 == 0:
         raise ValueError("Kernel size must be odd")
     
+    # Convert to uint8 for median filter
+    disp_max = disparity_map.max()
+    if disp_max > 0:
+        disp_uint8 = (disparity_map * 255.0 / disp_max).astype(np.uint8)
+    else:
+        return disparity_map
+    
     # Apply median filter
-    # Note: cv2.medianBlur requires uint8 or float32 single-channel image
-    filtered_disparity = cv2.medianBlur(disparity_map.astype(np.float32), kernel_size)
+    filtered_uint8 = cv2.medianBlur(disp_uint8, kernel_size)
+    
+    # Convert back to float32 with original scale
+    filtered_disparity = filtered_uint8.astype(np.float32) * disp_max / 255.0
     
     return filtered_disparity
 
