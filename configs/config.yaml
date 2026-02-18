@@ -1,23 +1,25 @@
 dataset:
   kitti_odometry_path: "..\\CV Project\\Dataset"
-  use_odometry_for_stereo: true  # Use odometry dataset for both stereo and VO
-  stereo_sequences: [0, 1, 2, 3, 4, 5]  # Training split for stereo evaluation
-  vo_sequences: [6, 7, 8, 9, 10]  # Test split for VO evaluation
-  
+  use_odometry_for_stereo: true
+  stereo_sequences: [0, 1, 2, 3, 4, 5]
+  vo_sequences: [6, 7, 8, 9, 10]
+
 stereo:
-  window_size: 15  
-  max_disparity: 48 
-  cost_function: "SSD" # Options: SSD, SAD, NCC
-  consistency_threshold: 2  
-  median_filter_size: 7
+  method: block_matching   # options: sgbm, block_matching
+  window_size: 7
+  max_disparity: 64
+  cost_function: "SSD" # Options: "SAD", "SSD", "NCC"
+  consistency_threshold: 3
+  median_filter_size: 5
+
 vo:
-  feature_detector: "ORB"  # Options: ORB, SIFT
-  descriptor_type: "ORB"
+  feature_detector: "ORB" # Options: "ORB", "SIFT"
+  descriptor_type: "ORB" 
   ransac_threshold: 1.0
   ransac_iterations: 1000
   ransac_confidence: 0.99
   min_inliers: 50
-  
+
 output:
   disparity_dir: "outputs/disparity"
   depth_dir: "outputs/depth"
