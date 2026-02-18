@@ -62,8 +62,8 @@ def run_vo_pipeline(dataset_path, sequence_id, num_frames, config, output_dir):
     print(f"  RANSAC threshold: {ransac_threshold}")
     
     # Create output directories
-    trajectory_dir = os.path.join(output_dir, config['output']['trajectory_dir'])
-    vis_dir = os.path.join(output_dir, config['output']['visualizations_dir'], f"vo_seq_{sequence_id:02d}")
+    trajectory_dir = config['output']['trajectory_dir']
+    vis_dir = os.path.join(config['output']['visualizations_dir'], f"vo_seq_{sequence_id:02d}")
     
     os.makedirs(trajectory_dir, exist_ok=True)
     os.makedirs(vis_dir, exist_ok=True)
