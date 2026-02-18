@@ -1,5 +1,6 @@
 dataset:
   kitti_odometry_path: "..\\CV Project\\Dataset"
+  kitti_stereo_path: "..\\CV Project\\Dataset_Stereo\\training"  # NEW
   use_odometry_for_stereo: true
   stereo_sequences: [0, 1, 2, 3, 4, 5]
   vo_sequences: [6, 7, 8, 9, 10]

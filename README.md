@@ -115,28 +115,25 @@ python scripts/evaluate_vo.py --trajectory outputs/trajectory/05.txt --sequence 
 - `outputs/evaluation/eval_seq_XX/metrics_seq_XX.txt` - Evaluation metrics (ATE, RPE)
 
 ### 4. Evaluate Depth (Template)
-```bash
-# Note: KITTI Odometry dataset does not include disparity ground truth
-# This script is a template for evaluation with KITTI Stereo 2015 dataset
-python scripts/evaluate_depth.py --pred_dir outputs/disparity/seq_00 --gt_dir path/to/ground_truth --sequence 0
+
+# Evaluate on first 10 images with SGBM
+python scripts/evaluate_depth_stereo2015.py --images 0-9 --method sgbm
+
+# Evaluate with block matching
+python scripts/evaluate_depth_stereo2015.py --images 0-9 --method block_matching
+
+# Evaluate specific images
+python scripts/evaluate_depth_stereo2015.py --images 0,5,10,15,20 --method sgbm
 ```
 
-## Output Formats
-
-### Trajectory Format (KITTI)
-Each line contains 12 values representing the 3x4 transformation matrix [R|t]:
+## Expected Output
 ```
-r11 r12 r13 t1 r21 r22 r23 t2 r31 r32 r33 t3
-```
-
-### Disparity/Depth Maps
-Saved as NumPy arrays (.npy files):
-```python
-import numpy as np
-disparity = np.load('outputs/disparity/seq_00/000000.npy')
-depth = np.load('outputs/depth/seq_00/000000.npy')
-```
-
+Average Metrics Across 10 Images
+Disparity Metrics:
+  MAE: 2.5-4.0 pixels (SGBM)
+  MAE: 4.0-8.0 pixels (block matching)
+  Bad-pixel rate: 15-25% (SGBM)
+  Bad-pixel rate: 30-50% (block matching)
 ## Algorithm Overview
 
 ### Stereo Depth Pipeline
