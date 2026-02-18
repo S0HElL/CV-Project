@@ -109,6 +109,44 @@ def compute_lr_consistency_optimized(disparity_left, disparity_right, threshold=
     
     return consistent_disparity, valid_mask
 
+def compute_lr_consistency_relaxed(disparity_left, disparity_right, threshold=3.0, max_threshold=10.0):
+    """
+    Relaxed consistency check that marks pixels invalid only if severely inconsistent.
+    """
+    height, width = disparity_left.shape
+    consistent_disparity = np.copy(disparity_left)
+    valid_mask = np.zeros((height, width), dtype=bool)
+    
+    for y in range(height):
+        for x in range(width):
+            d_left = disparity_left[y, x]
+            
+            if d_left < 0.5:
+                continue
+            
+            x_right = int(x - d_left)
+            
+            if x_right < 0 or x_right >= width:
+                # Out of bounds - mark invalid only if far out
+                if x_right < -5 or x_right >= width + 5:
+                    consistent_disparity[y, x] = 0
+                else:
+                    valid_mask[y, x] = True  # Keep marginal cases
+                continue
+            
+            d_right = disparity_right[y, x_right]
+            
+            # Use tiered thresholds
+            error = abs(d_left - d_right)
+            if error <= threshold:
+                valid_mask[y, x] = True  # Good match
+            elif error <= max_threshold:
+                valid_mask[y, x] = True  # Acceptable match
+                # Optionally: consistent_disparity[y, x] *= 0.9  # Slight penalty
+            else:
+                consistent_disparity[y, x] = 0  # Only reject egregious errors
+    
+    return consistent_disparity, valid_mask
 
 def mark_occluded_pixels(disparity_left, disparity_right, threshold=1.0):
     """
