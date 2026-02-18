@@ -1,5 +1,4 @@
 *.pdf
-*.md
 /Dataset
 venv/*
 __pycache__/

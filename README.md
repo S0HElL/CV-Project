@@ -64,6 +64,12 @@ python scripts/run_stereo.py --sequence 5 --frames 0,5,10,15,20
 
 # Process frames from sequence 05
 python scripts/run_stereo.py --sequence 5 --frames 0-50
+
+# Generate SGBM results
+python scripts/run_stereo.py --sequence 0 --frames 0-10 --method sgbm
+
+# Generate block_matching results (won't overwrite)
+python scripts/run_stereo.py --sequence 0 --frames 0-10 --method block_matching
 ```
 
 **Outputs:**
