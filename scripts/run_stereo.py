@@ -17,7 +17,7 @@ from src.utils.kitti_stereo_loader import load_stereo_pair, get_sequence_length
 from src.utils.kitti_odometry_loader import load_calibration
 from src.stereo.block_matching import compute_disparity_optimized
 from src.stereo.sgbm import compute_disparity_sgbm
-from src.stereo.consistency import compute_lr_consistency
+from src.stereo.consistency import compute_lr_consistency, compute_lr_consistency_relaxed
 from src.stereo.postprocessing import postprocess_disparity
 from src.stereo.depth import disparity_to_depth
 from src.visualization.plot_disparity import plot_disparity_map, plot_disparity_with_image
