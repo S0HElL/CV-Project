@@ -1,7 +1,7 @@
 
 """
 Block matching stereo implementation.
-Computes dense disparity maps using SAD, SSD, and NCC cost functions.
+Computes dense disparity maps using SAD and SSD cost functions.
 """
 
 import numpy as np
@@ -37,42 +37,6 @@ def compute_ssd(patch_left, patch_right):
     return np.sum(diff * diff)
 
 
-def compute_ncc(patch_left, patch_right):
-    """
-    Compute Normalized Cross-Correlation between two patches.
-    
-    Args:
-        patch_left: Left image patch
-        patch_right: Right image patch
-        
-    Returns:
-        ncc: Negative normalized cross-correlation (lower is better for consistency)
-             Range: [-1, 1], we return -ncc so lower is better
-    """
-    patch_left_f = patch_left.astype(np.float32)
-    patch_right_f = patch_right.astype(np.float32)
-    
-    # Normalize patches
-    left_mean = np.mean(patch_left_f)
-    right_mean = np.mean(patch_right_f)
-    
-    left_norm = patch_left_f - left_mean
-    right_norm = patch_right_f - right_mean
-    
-    # Compute standard deviations
-    left_std = np.sqrt(np.sum(left_norm * left_norm))
-    right_std = np.sqrt(np.sum(right_norm * right_norm))
-    
-    # Avoid division by zero
-    if left_std < 1e-6 or right_std < 1e-6:
-        return 1.0  # Return worst correlation (as positive value)
-    
-    # Compute normalized cross-correlation
-    ncc = np.sum(left_norm * right_norm) / (left_std * right_std)
-    
-    # Return negative NCC so that lower is better (consistent with SAD/SSD)
-    return -ncc
-
 
 def compute_disparity(left_image, right_image, window_size=11, max_disparity=128, cost_function='SAD'):
     """
@@ -83,7 +47,7 @@ def compute_disparity(left_image, right_image, window_size=11, max_disparity=128
         right_image: Right camera image (grayscale)
         window_size: Size of matching window (must be odd)
         max_disparity: Maximum disparity to search
-        cost_function: Cost function to use ('SAD', 'SSD', or 'NCC')
+        cost_function: Cost function to use ('SAD' or 'SSD')
         
     Returns:
         disparity_map: Dense disparity map (same size as input images)
@@ -97,8 +61,6 @@ def compute_disparity(left_image, right_image, window_size=11, max_disparity=128
         cost_fn = compute_sad
     elif cost_function == 'SSD':
         cost_fn = compute_ssd
-    elif cost_function == 'NCC':
-        cost_fn = compute_ncc
     else:
         raise ValueError(f"Unknown cost function: {cost_function}")
     
@@ -156,7 +118,7 @@ def compute_disparity_optimized(left_image, right_image, window_size=11, max_dis
         right_image: Right camera image (grayscale)
         window_size: Size of matching window (must be odd)
         max_disparity: Maximum disparity to search
-        cost_function: Cost function to use ('SAD', 'SSD', or 'NCC')
+        cost_function: Cost function to use ('SAD', 'SSD')
         
     Returns:
         disparity_map: Dense disparity map
@@ -189,10 +151,6 @@ def compute_disparity_optimized(left_image, right_image, window_size=11, max_dis
             diff = np.abs(left_float - right_shifted)
         elif cost_function == 'SSD':
             diff = (left_float - right_shifted) ** 2
-        elif cost_function == 'NCC':
-            # For NCC, use per-pixel computation (more complex)
-            # Fall back to standard implementation for NCC
-            continue
         else:
             raise ValueError(f"Unknown cost function: {cost_function}")
         
@@ -201,11 +159,6 @@ def compute_disparity_optimized(left_image, right_image, window_size=11, max_dis
         
         # Store in cost volume (only valid regions)
         cost_volume[:, d:, d] = cost[:, d:]
-    
-    # Handle NCC separately if needed
-    if cost_function == 'NCC':
-        # Use standard implementation for NCC
-        return compute_disparity(left_image, right_image, window_size, max_disparity, cost_function)
     
     # Winner-takes-all: select disparity with minimum cost
     disparity_map = np.argmin(cost_volume, axis=2).astype(np.float32)
@@ -267,34 +220,22 @@ if __name__ == "__main__":
         print(f"   Disparity range: [{disparity_ssd.min():.2f}, {disparity_ssd.max():.2f}]")
         print(f"   Mean disparity: {disparity_ssd[disparity_ssd > 0].mean():.2f}")
         
-        # Test NCC (slower, smaller region)
-        print(f"\n3. Testing NCC (window={window_size}, max_disp={max_disparity})")
-        small_crop = 100
-        disparity_ncc = compute_disparity(left_crop[:small_crop, :small_crop], 
-                                         right_crop[:small_crop, :small_crop], 
-                                         window_size, max_disparity, 'NCC')
-        print(f"   Disparity range: [{disparity_ncc.min():.2f}, {disparity_ncc.max():.2f}]")
-        print(f"   Mean disparity: {disparity_ncc[disparity_ncc > 0].mean():.2f}")
-        
         # Test optimized version
-        print(f"\n4. Testing optimized SAD (window={window_size}, max_disp={max_disparity})")
+        print(f"\n3. Testing optimized SAD (window={window_size}, max_disp={max_disparity})")
         disparity_opt = compute_disparity_optimized(left_crop, right_crop, window_size, max_disparity, 'SAD')
         print(f"   Disparity range: [{disparity_opt.min():.2f}, {disparity_opt.max():.2f}]")
         print(f"   Mean disparity: {disparity_opt[disparity_opt > 0].mean():.2f}")
         
         # Verify cost functions work on patches
-        print("\n5. Testing individual cost functions")
+        print("\n4. Testing individual cost functions")
         test_patch_size = 11
         patch1 = left_crop[50:50+test_patch_size, 50:50+test_patch_size]
         patch2 = right_crop[50:50+test_patch_size, 45:45+test_patch_size]
         
         sad_cost = compute_sad(patch1, patch2)
         ssd_cost = compute_ssd(patch1, patch2)
-        ncc_cost = compute_ncc(patch1, patch2)
-        
         print(f"   SAD cost: {sad_cost:.2f}")
         print(f"   SSD cost: {ssd_cost:.2f}")
-        print(f"   NCC cost: {ncc_cost:.4f}")
         
         print("\n" + "=" * 60)
         print("All tests passed successfully!")

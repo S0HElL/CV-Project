@@ -1,21 +1,21 @@
 dataset:
   kitti_odometry_path: "..\\CV Project\\Dataset"
-  kitti_stereo_path: "..\\CV Project\\Dataset_Stereo\\training"  # NEW
+  kitti_stereo_path: "..\\CV Project\\Dataset\\Dataset_Stereo\\training"  
   use_odometry_for_stereo: true
   stereo_sequences: [0, 1, 2, 3, 4, 5]
   vo_sequences: [6, 7, 8, 9, 10]
 
 stereo:
   method: block_matching   # options: sgbm, block_matching
-  window_size: 7
-  max_disparity: 64
-  cost_function: "SSD" # Options: "SAD", "SSD", "NCC"
+  window_size: 15
+  max_disparity: 128
+  cost_function: "SSD" # Options: "SAD", "SSD"
   consistency_threshold: 3
   median_filter_size: 5
 
 vo:
-  feature_detector: "ORB" # Options: "ORB", "SIFT"
-  descriptor_type: "ORB" 
+  feature_detector: "SIFT" # Options: "ORB", "SIFT"
+  descriptor_type: "SIFT" 
   ransac_threshold: 1.0
   ransac_iterations: 1000
   ransac_confidence: 0.99

@@ -15,10 +15,13 @@ pip install numpy opencv-python scipy matplotlib pyyaml
 ### Dataset
 - KITTI Odometry Dataset (sequences 00-10)
 - KITTI Ground Truth Poses (for evaluation)
+- KITTI Stereo 2015 dataset
 
 Download from: 
 https://s3.eu-central-1.amazonaws.com/avg-kitti/data_odometry_gray.zip
 https://s3.eu-central-1.amazonaws.com/avg-kitti/data_odometry_poses.zip
+https://s3.eu-central-1.amazonaws.com/avg-kitti/data_scene_flow.zip
+
 
 ## Project Structure
 ```
@@ -27,12 +30,13 @@ CV Project/
 │   └── config.yaml          # Configuration parameters
 ├── Dataset/                 # KITTI dataset (not included)
 │   ├── poses/              # Ground truth poses
-│   └── sequences/          # Image sequences 00-10
+│   ├── sequences/          # Image sequences 00-10
+│   └──Dataset_Stereo/
 ├── outputs/                # Generated results
 ├── scripts/                # Executable scripts
 │   ├── run_stereo.py
 │   ├── run_vo.py
-│   ├── evaluate_depth.py
+│   ├── evaluate_depth_stereo2015.py
 │   └── evaluate_vo.py
 └── src/                    # Source code modules
     ├── stereo/
@@ -68,7 +72,7 @@ python scripts/run_stereo.py --sequence 5 --frames 0-50
 # Generate SGBM results
 python scripts/run_stereo.py --sequence 0 --frames 0-10 --method sgbm
 
-# Generate block_matching results (won't overwrite)
+# Generate block_matching results 
 python scripts/run_stereo.py --sequence 0 --frames 0-10 --method block_matching
 ```
 

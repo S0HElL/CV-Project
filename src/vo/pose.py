@@ -129,7 +129,10 @@ def estimate_pose_pnp(points_3d, points_2d, K, method=cv2.SOLVEPNP_ITERATIVE,
     
     # Convert rotation vector to rotation matrix
     R, _ = cv2.Rodrigues(rvec)
-    t = tvec
+
+    
+    R = R.T  # Transpose = inverse for rotation matrix
+    t = -R @ tvec  # Invert translation
     
     return R, t, inlier_mask, True
 

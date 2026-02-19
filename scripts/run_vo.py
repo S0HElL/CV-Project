@@ -114,8 +114,12 @@ def run_vo_pipeline(dataset_path, sequence_id, num_frames, config, output_dir):
             
             if R is not None:
                 translation_mag = np.linalg.norm(t)
-                print(f"    Inliers: {num_inliers}/{len(matches)}")
+                # COMPUTE ROTATION ANGLE
+                rotation_angle = np.arccos((np.trace(R) - 1) / 2) * 180 / np.pi
+                print(f"    Inliers: {num_inliers}/{len(matches)}") 
                 print(f"    Translation: {translation_mag:.3f} m")
+                print(f"    Rotation angle: {rotation_angle:.3f} degrees")  # ADD THIS
+                print(f"    R determinant: {np.linalg.det(R):.6f}")  # Should be 1.0
                 
                 # Add to trajectory
                 trajectory.add_pose(R, t)

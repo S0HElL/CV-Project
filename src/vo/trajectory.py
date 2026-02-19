@@ -34,10 +34,8 @@ def chain_transformations(R_list, t_list):
         T_relative[:3, 3] = t.flatten()
         
         # Invert to get camera i+1 to camera i
-        T_relative_inv = np.linalg.inv(T_relative)
-        
-        # Update current pose: world to camera i+1
-        current_pose = current_pose @ T_relative_inv
+        current_pose = current_pose @ T_relative
+
         
         # Store the pose
         poses.append(current_pose.copy())
@@ -59,10 +57,9 @@ def extract_trajectory_positions(poses):
     
     for i, pose in enumerate(poses):
         # Camera position in world coordinates is -R^T * t
-        R = pose[:3, :3]
-        t = pose[:3, 3]
-        position = -R.T @ t
-        positions[i] = position
+        positions = np.zeros((len(poses), 3))
+        for i, pose in enumerate(poses):
+            positions[i] = pose[:3, 3]
     
     return positions
 
@@ -185,11 +182,8 @@ class TrajectoryBuilder:
         T_relative[:3, :3] = R
         T_relative[:3, 3] = t.flatten()
         
-        # Invert to get camera i+1 to camera i
-        T_relative_inv = np.linalg.inv(T_relative)
-        
         # Update current pose
-        self.current_pose = self.current_pose @ T_relative_inv
+        self.current_pose = self.current_pose @ T_relative
         
         # Store pose
         self.poses.append(self.current_pose.copy())
